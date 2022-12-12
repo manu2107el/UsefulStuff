@@ -16,3 +16,6 @@ just for me pleas leave alone
 
 ## ZTCUI
 Quick install for zerotier controller.. It even has a WEBUI!
+
+## HBS
+Homelab Base system.
