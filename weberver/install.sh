@@ -4,7 +4,8 @@
 sudo apt-get update
 
 # Install Apache, PHP, MySQL, and FileZilla
-sudo apt-get install apache2 php mysql-server filezilla
+sudo apt-get install apache2 php mysql-server
+
 
 # Install PHPMyAdmin
 sudo apt-get install phpmyadmin
