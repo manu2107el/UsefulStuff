@@ -18,6 +18,7 @@ sudo a2enmod rewrite
 # Install the FTP server
 sudo apt-get install vsftpd -y
 sudo mv vsftpd.conf /etc/vsftpd.conf
+sudo chown root:root /etc/vsftpd.conf
 
 #user
 sudo groupadd ftpusers
