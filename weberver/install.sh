@@ -19,6 +19,12 @@ a2enmod rewrite
 apt-get install vsftpd -y
 sudo mv vsftpd.conf /etc/vsftpd.conf
 
+#user
+sudo adduser ftpuser
+sudo usermod -d /var/www -m ftpuser
+sudo usermod -a -G www-data ftpuser
+sudo chgrp -R www-data /var/www
+sudo chmod -R g+w /var/www
 # Restart to apply changes
 service vsftpd restart
 service apache2 restart
