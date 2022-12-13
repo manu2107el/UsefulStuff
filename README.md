@@ -1,4 +1,5 @@
 # UsefulStuff
+All scripts were last tested to be working on Ubuntu Server 22.04 LTS on the 11.12.2022
 
 ## Netdata
 A Netdata quick install that opens the config after install to bind an IP interface
