@@ -1,31 +1,27 @@
 #!/bin/bash
 
 # Update package index
-sudo apt-get update
+apt-get update
 
-# Install Apache, PHP, MySQL, and FileZilla
-sudo apt-get install apache2 php mysql-server
+# Install MySQL, Apache, and PHPMyAdmin
+apt-get install mysql-server apache2 libapache2-mod-php php-mysql phpmyadmin -y
 
+# Enable the Apache rewrite module
+a2enmod rewrite
 
-# Install PHPMyAdmin
-sudo apt-get install phpmyadmin
+# Restart Apache to apply changes
+service apache2 restart
 
-# Move PHPMyAdmin to a different port
-sudo nano /etc/phpmyadmin/apache.conf
+# Install the FTP server
+apt-get install vsftpd -y
 
-# Edit the Listen directive to specify the new port for PHPMyAdmin
-# For example, to use port 8080, change the line to:
-# Listen 8080
+# Open the FTP server configuration file in a text editor
+nano /etc/vsftpd.conf
 
-# Restart Apache to apply the changes
-sudo service apache2 restart
+# Uncomment the following lines in the configuration file to enable FTP access to the Apache directory
+# local_enable=YES
+# write_enable=YES
+# chroot_local_user=YES
 
-# Update the files in the Apache directory
-# Replace /path/to/local/directory with the path to the directory on your local machine
-# and username@hostname with the username and hostname of your server
-# For example, if your username is "user" and the hostname of your server is "myserver",
-# the command would be:
-# filezilla user@myserver
-
-# Connect to your server using FileZilla, and navigate to the Apache directory
-# Use the FileZilla interface to upload the files you want to update.
+# Restart the FTP server to apply changes
+service vsftpd restart
