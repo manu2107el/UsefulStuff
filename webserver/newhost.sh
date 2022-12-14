@@ -9,16 +9,16 @@ cat > /etc/apache2/sites-available/${vhost}.conf <<EOL
 Listen *:${port}
 <VirtualHost *:${port}>
     ServerName ${vhost}
-    DocumentRoot /var/www/html/${vhost}
+    DocumentRoot /var/www/${vhost}
 
-    <Directory /var/www/html/${vhost}>
+    <Directory /var/www/${vhost}>
         AllowOverride All
     </Directory>
 </VirtualHost>
 EOL
 
 # Enable the virtual host
-a2ensite ${vhost}
+sudo a2ensite ${vhost}
 
 # Restart Apache to apply the changes
-systemctl restart apache2
+sudo systemctl restart apache2
