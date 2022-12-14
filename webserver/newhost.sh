@@ -6,6 +6,7 @@ read -p "Enter the virtual host name: " vhost
 
 # Create the virtual host configuration file
 cat > /etc/apache2/sites-available/${vhost}.conf <<EOL
+Listen *:${port}
 <VirtualHost *:${port}>
     ServerName ${vhost}
     DocumentRoot /var/www/html/${vhost}
