@@ -20,3 +20,8 @@ Quick install for zerotier controller.. It even has a WEBUI!
 
 ## HBS
 Homelab Base system.
+
+## Webserver
+
+install.sh installs apache2, Mysql, Phpmyadmin and zerotier client.
+newhost.sh creates a new Port based virtual host.
