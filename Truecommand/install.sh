@@ -11,10 +11,8 @@ sudo vim /etc/netdata/netdata.conf
 sudo apt-get update
 sudo apt-get -y upgrade
 
+#get depancencies
+sudo apt-get install wget
 
-#instaLL
-sudo apt install docker.io -y
-sudo apt-get update
-sudo apt-get install docker-compose -y
-sudo docker-compose version
-sudo docker-compose up -d
+#get Truecommand server
+wget https://raw.githubusercontent.com/iXsystems/truecommand-install/main/debian/setup.sh -O - | sudo bash
