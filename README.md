@@ -17,6 +17,7 @@ just for me pleas leave alone
 
 ## ZTCUI
 Quick install for zerotier controller.. It even has a WEBUI!
+NOTE: EDIT PASSWORD AND DOMAIN!
 
 ## HBS
 Homelab Base system.
@@ -25,3 +26,4 @@ Homelab Base system.
 
 install.sh installs apache2, Mysql, Phpmyadmin and zerotier client.
 newhost.sh creates a new Port based virtual host.
+removehost.sh removes a vhost and puts ascoiated files in a tar.gz
