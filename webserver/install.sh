@@ -1,7 +1,9 @@
 #!/bin/bash
 
+read -p "Enter A zerotier ID (leave blank to skip) " zt
 #Get zerotier
 curl -s https://install.zerotier.com | sudo bash
+zerotier-cli join $zt
 
 #get netdata
 sudo apt install netdata -y
