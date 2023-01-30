@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#List all virtual hosts
+apache2ctl -S 
+
 # Prompt the user for the port number and virtual host name
 read -p "Enter the virtual host name: " vhost
 
