@@ -10,7 +10,7 @@ else
   read -p "Do you want to install Java now? [y/n]: " install_java
   if [ "$install_java" = "y" ]; then
     sudo apt-get update
-    sudo apt-get install openjdk-8-jre-headless
+    sudo apt install -y openjdk-18-jdk
   else
     echo "Exiting script..."
     exit 1

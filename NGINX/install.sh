@@ -3,13 +3,9 @@
 #Get zerotier
 curl -s https://install.zerotier.com | sudo bash
 
-#get netdata
-sudo apt install netdata -y
-sudo ufw allow 19999/tcp
-sudo vim /etc/netdata/netdata.conf 
+read -p "Enter a Zerotier network-ID to join" ztid
 
-sudo apt-get update
-sudo apt-get -y upgrade
+sudo zerotier-cli join $ztid
 
 
 #instaLL

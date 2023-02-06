@@ -1,5 +1,28 @@
 #!/bin/bash
 
+# Check for Java
+if type -p java; then
+    echo -e "\e[32mJava is installed\e[0m"
+else
+    echo -e "\e[31mJava is not installed\e[0m"
+    read -p "Do you want to install Java now? (y/n): " install_java
+    if [ "$install_java" == "y" ]; then
+        sudo apt-get update
+        sudo apt install -y openjdk-18-jdk
+    fi
+fi
+
+# Check for screen
+if type -p screen; then
+    echo -e "\e[32mScreen is installed\e[0m"
+else
+    echo -e "\e[31mScreen is not installed\e[0m"
+    read -p "Do you want to install Screen now? (y/n): " install_screen
+    if [ "$install_screen" == "y" ]; then
+        sudo apt-get update
+        sudo apt-get install screen
+    fi
+fi
 # Prompt user for Minecraft server username
 read -p "Enter Minecraft server username: " user
 

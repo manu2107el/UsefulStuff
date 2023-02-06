@@ -1,10 +1,22 @@
 # UsefulStuff
 All scripts were last tested to be working on Ubuntu Server 22.04 LTS on the 11.12.2022
 
-## Netdata
-A Netdata quick install that opens the config after install to bind an IP interface
+# Netdata
+No Longer maintained: Just use Netdata Cloud.
 
-## NGINX
+# Minecraft
+## Autostart.sh
+This file wille chack wether you have java installed and then ask you to enter some values so your minecraft server will automaticaly start in the background. It will be running In a seperate sceen wich you can see using
+```
+screen -r YourAwesomeScreenName
+```
+
+# MusicBot
+## Autostart.sh
+This script will let you have your JMusicBot running as a background service
+NOTE: configure first!
+
+# NGINX
 A setup script that will get you NGINX Reverse Proxy Manager installed Real fast
 
 Default Admin User:
@@ -12,18 +24,19 @@ Default Admin User:
 Email:    admin@example.com
 Password: changeme
 ```
-## SRVNETclient
-just for me pleas leave alone
 
-## ZTCUI
+# ZTCUI
 Quick install for zerotier controller.. It even has a WEBUI!
 NOTE: EDIT PASSWORD AND DOMAIN!
 
-## HBS
-Homelab Base system.
 
-## Webserver
+# Webserver
 
-install.sh installs apache2, Mysql, Phpmyadmin and zerotier client.
-newhost.sh creates a new Port based virtual host.
-removehost.sh removes a vhost and puts ascoiated files in a tar.gz
+## Install.sh
+Installs apache2, Mysql, Phpmyadmin and zerotier client.
+
+## Newhost.sh
+Creates a new Port based virtual host.
+
+## Removehost.sh
+Removes a vhost and puts ascoiated files in a tar.gz
