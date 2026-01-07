@@ -25,6 +25,12 @@ log "Creating mount point: $MOUNT_POINT"
 mkdir -p "$MOUNT_POINT"
 mkdir -p "$BACKUP_DESTINATION"
 
+# Check if the mount point is already mounted
+if mountpoint -q "$MOUNT_POINT"; then
+    log "Mount point $MOUNT_POINT is already mounted. Attempting to unmount first..."
+    sudo umount -l "$MOUNT_POINT" 2>/dev/null || true # Soft unmount, ignore errors
+fi
+
 # Mount the SMB share using credentials
 log "Mounting SMB share $SMB_SHARE..."
 sudo mount -t cifs "$SMB_SHARE" "$MOUNT_POINT" \
