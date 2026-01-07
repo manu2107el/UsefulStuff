@@ -32,9 +32,10 @@ fi
 
 log "Checking retention policy (Max: $MAX_BACKUPS backups) in $DEST_BASE_DIR..."
 
-# Find all dated backup folders (using a standard YYYYMMDD format)
-# The '-type d' ensures we only look at directories.
-BACKUP_FOLDERS=$(find "$DEST_BASE_DIR" -mindepth 1 -maxdepth 1 -type d -regextype posix-egrep -regex ".*[0-9]{14}" | sort)
+# The new DATE_STAMP format is YYYY-MM-DD_HH:MM:SS
+# Regex Pattern: [4 digits]-[2 digits]-[2 digits]_[2 digits]:[2 digits]:[2 digits]
+BACKUP_FOLDERS=$(find "$DEST_BASE_DIR" -mindepth 1 -maxdepth 1 -type d -regextype posix-egrep -regex ".*[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}:[0-9]{2}:[0-9]{2}$" | sort)
+
 BACKUP_COUNT=$(echo "$BACKUP_FOLDERS" | wc -l)
 GLOBAL_EXIT_CODE=0
 
