@@ -62,8 +62,8 @@ fi
 
 # --- 2. Define New Date-Stamped Destination ---
 
-# Format: YYYYMMDDHHMMSS
-DATE_STAMP=$(date '+%Y%m%d%H%M%S')
+# Format: YYYY-MM-DD_HH-MM (e.g., 2026-01-07_23-47)
+DATE_STAMP=$(date '+%Y-%m-%d_%H-%M')
 DEST_DIR="$DEST_BASE_DIR/$DATE_STAMP"
 
 log "Creating new dated destination folder: $DEST_DIR"
