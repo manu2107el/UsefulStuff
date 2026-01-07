@@ -62,7 +62,7 @@ fi
 
 # --- 2. Define New Date-Stamped Destination ---
 
-# Format: YYYY-MM-DD_HH-MM (e.g., 2026-01-07_23:47:01)
+# Format: YYYY-MM-DD_HH:MM:SS (e.g., 2026-01-07_23:51:50)
 DATE_STAMP=$(date '+%Y-%m-%d_%H:%M:%S')
 DEST_DIR="$DEST_BASE_DIR/$DATE_STAMP"
 
