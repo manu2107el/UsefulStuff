@@ -23,6 +23,7 @@ fi
 # Create mount point and host directory
 log "Creating mount point: $MOUNT_POINT"
 mkdir -p "$MOUNT_POINT"
+log "Creating mount point: $BACKUP_DESTINATION"
 mkdir -p "$BACKUP_DESTINATION"
 
 # Check if the mount point is already mounted
