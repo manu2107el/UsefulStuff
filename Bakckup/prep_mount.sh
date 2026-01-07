@@ -10,6 +10,17 @@ MOUNT_POINT="$4"          # e.g., /mnt/smbshare
 BACKUP_DESTINATION="$5"   # e.g., /mnt/smbshare/dev-env
 
 # --- 1. Preparation and Local Mount Point Creation ---
+if command -v apt >/dev/null 2>&1; then
+    log "Installing cifs-utils via apt..."
+    # Ensure non-interactive mode and quiet output
+    sudo DEBIAN_FRONTEND=noninteractive apt update > /dev/null 
+    sudo DEBIAN_FRONTEND=noninteractive apt install -y cifs-utils > /dev/null
+elif command -v yum >/dev/null 2>&1 || command -v dnf >/dev/null 2>&1; then
+    log "Installing cifs-utils via yum/dnf..."
+    sudo yum install -y cifs-utils > /dev/null || sudo dnf install -y cifs-utils > /dev/null
+else
+    log "Warning: Could not detect package manager for cifs-utils installation."
+fi
 
 # Install cifs-utils (Logic omitted for brevity, assume it remains here)
 
