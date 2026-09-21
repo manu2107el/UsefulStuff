@@ -77,15 +77,15 @@ for line in "${sys_disks[@]}"; do
     dev_mount=$(echo "$line" | awk '{print $6}')
 
     # Find persistent disk ID for this device (/dev/disk/by-id/)
-    by_id_name=$(ls -l /dev/disk/by-id/ 2>/dev/null | grep -v 'part' | grep -W "$dev_name$" | awk '{print $9}' | grep -E '^(ata|nvme|scsi|wwn)-' | head -n 1 || true)
-    
+    by_id_name=$(ls -l /dev/disk/by-id/ 2>/dev/null | grep -v 'part' | grep -w "$dev_name$" | awk '{print $9}' | grep -E '^(ata|nvme|scsi|wwn)-' | head -n 1 || true)
+
     if [[ -z "$by_id_name" ]]; then
         continue
     fi
 
     # Determine usage status
     status_tag="[AVAILABLE / UNUSED]"
-    
+
     # Check if drive or partition is part of a ZFS pool
     if echo "$ALL_ZPOOL_STATUS" | grep -q "$dev_name" || echo "$ALL_ZPOOL_STATUS" | grep -q "$by_id_name"; then
         # Extract matching pool name
