@@ -94,6 +94,11 @@ while IFS= read -r line; do
     [[ "$dev_type" == "disk" ]] || continue
     [[ -n "$dev_name" ]] || continue
 
+    # Skip ZFS zvols (e.g. zd0, zd16). These are virtual block devices that
+    # ZFS itself exposes (commonly VM/container disks backed by a zpool),
+    # not physical drives - never a valid replacement target.
+    [[ "$dev_name" =~ ^zd[0-9]+$ ]] && continue
+
     # Find persistent disk ID(s) for this device in /dev/disk/by-id/.
     # Prefer human-readable bus prefixes; fall back to whatever symlink
     # exists (covers virtio-, scsi-SATA_, google-, mmc-, usb-, wwn-, etc.)
@@ -139,7 +144,7 @@ while IFS= read -r line; do
     fi
 
     disk_ids+=("$by_id_path")
-    display_labels+=("$by_id_label  |  Size: $dev_size  |  Model: ${dev_model:-unknown}  |  Serial: ${dev_serial:-unknown}  |  Status: $status_tag")
+    display_labels+=("$by_id_label  |  Size: $dev_size  |  Status: $status_tag")
 done < <(lsblk -d -P -o NAME,TYPE,SIZE,MODEL,SERIAL,FSTYPE,MOUNTPOINT -e 7,11)
 
 if [[ ${#disk_ids[@]} -eq 0 ]]; then
