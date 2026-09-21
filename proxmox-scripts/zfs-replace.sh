@@ -22,7 +22,10 @@ echo "=========================================="
 echo
 
 # 1. Select ZFS Pool
-pools=($(zpool list -H -o name))
+pools=()
+while IFS= read -r p; do
+    [[ -n "$p" ]] && pools+=("$p")
+done < <(zpool list -H -o name)
 
 if [[ ${#pools[@]} -eq 0 ]]; then
     echo "No active ZFS pools found."
@@ -63,46 +66,84 @@ echo "--------------------------------------------------------------------------
 # Build a string of all active zpool configurations to match active pool drives
 ALL_ZPOOL_STATUS=$(zpool status 2>/dev/null || true)
 
-# Fetch all top-level disk drives (type 'disk'), excluding loop/rom devices
-mapfile -t sys_disks < <(lsblk -d -n -o NAME,SIZE,MODEL,SERIAL,FSTYPE,MOUNTPOINT -e 7,11 | sort)
-
+# Fetch all top-level disk drives (type 'disk'), excluding loop/rom devices.
+# Use lsblk -P (key="value" pairs) instead of plain columns: MODEL and
+# MOUNTPOINT frequently contain spaces, which silently misaligns simple
+# whitespace/awk column parsing.
 disk_ids=()
 display_labels=()
 
-for line in "${sys_disks[@]}"; do
-    dev_name=$(echo "$line" | awk '{print $1}')
-    dev_size=$(echo "$line" | awk '{print $2}')
-    dev_model=$(echo "$line" | awk '{print $3}')
-    dev_fstype=$(echo "$line" | awk '{print $5}')
-    dev_mount=$(echo "$line" | awk '{print $6}')
+while IFS= read -r line; do
+    dev_name="" dev_type="" dev_size="" dev_model="" dev_serial="" dev_fstype="" dev_mount=""
+    rest="$line"
+    while [[ "$rest" =~ ^([A-Z_]+)=\"([^\"]*)\"[[:space:]]*(.*)$ ]]; do
+        key="${BASH_REMATCH[1]}"
+        val="${BASH_REMATCH[2]}"
+        rest="${BASH_REMATCH[3]}"
+        case "$key" in
+            NAME) dev_name="$val" ;;
+            TYPE) dev_type="$val" ;;
+            SIZE) dev_size="$val" ;;
+            MODEL) dev_model="$val" ;;
+            SERIAL) dev_serial="$val" ;;
+            FSTYPE) dev_fstype="$val" ;;
+            MOUNTPOINT) dev_mount="$val" ;;
+        esac
+    done
 
-    # Find persistent disk ID for this device (/dev/disk/by-id/)
-    by_id_name=$(ls -l /dev/disk/by-id/ 2>/dev/null | grep -v 'part' | grep -w "$dev_name$" | awk '{print $9}' | grep -E '^(ata|nvme|scsi|wwn)-' | head -n 1 || true)
+    [[ "$dev_type" == "disk" ]] || continue
+    [[ -n "$dev_name" ]] || continue
+
+    # Find persistent disk ID(s) for this device in /dev/disk/by-id/.
+    # Prefer human-readable bus prefixes; fall back to whatever symlink
+    # exists (covers virtio-, scsi-SATA_, google-, mmc-, usb-, wwn-, etc.)
+    # instead of silently dropping the disk when the bus type is unusual.
+    by_id_name=""
+    while IFS= read -r candidate; do
+        [[ -z "$candidate" ]] && continue
+        if [[ "$candidate" =~ ^(ata|nvme|scsi|virtio)- ]]; then
+            by_id_name="$candidate"
+            break
+        elif [[ -z "$by_id_name" ]]; then
+            by_id_name="$candidate"
+        fi
+    done < <(ls -l /dev/disk/by-id/ 2>/dev/null | grep -vE -- '-part[0-9]+ ->' | grep -w -- "$dev_name$" | awk '{print $9}')
 
     if [[ -z "$by_id_name" ]]; then
-        continue
+        # No by-id entry found at all (rare) - fall back to the raw device
+        # node rather than dropping the disk from the list.
+        by_id_path="/dev/$dev_name"
+        by_id_label="(no by-id entry) /dev/$dev_name"
+    else
+        by_id_path="/dev/disk/by-id/$by_id_name"
+        by_id_label="$by_id_name"
     fi
 
     # Determine usage status
     status_tag="[AVAILABLE / UNUSED]"
 
     # Check if drive or partition is part of a ZFS pool
-    if echo "$ALL_ZPOOL_STATUS" | grep -q "$dev_name" || echo "$ALL_ZPOOL_STATUS" | grep -q "$by_id_name"; then
-        # Extract matching pool name
-        matched_pool=$(zpool list -H -o name | while read -r p; do zpool status "$p" | grep -E -q "$dev_name|$by_id_name" && echo "$p"; done | head -n 1)
+    if echo "$ALL_ZPOOL_STATUS" | grep -qw -- "$dev_name" || { [[ -n "$by_id_name" ]] && echo "$ALL_ZPOOL_STATUS" | grep -qF -- "$by_id_name"; }; then
+        matched_pool=""
+        for p in "${pools[@]}"; do
+            if zpool status "$p" | grep -qE -- "$dev_name|$by_id_name"; then
+                matched_pool="$p"
+                break
+            fi
+        done
         status_tag="[IN POOL: ${matched_pool:-unknown}]"
-    elif [[ -n "$dev_fstype" && "$dev_fstype" != "null" ]]; then
+    elif [[ -n "$dev_fstype" ]]; then
         status_tag="[USED: $dev_fstype]"
-    elif [[ -n "$dev_mount" && "$dev_mount" != "null" ]]; then
+    elif [[ -n "$dev_mount" ]]; then
         status_tag="[MOUNTED: $dev_mount]"
     fi
 
-    disk_ids+=("$by_id_name")
-    display_labels+=("$by_id_name  |  Size: $dev_size  |  Model: $dev_model  |  Status: $status_tag")
-done
+    disk_ids+=("$by_id_path")
+    display_labels+=("$by_id_label  |  Size: $dev_size  |  Model: ${dev_model:-unknown}  |  Serial: ${dev_serial:-unknown}  |  Status: $status_tag")
+done < <(lsblk -d -P -o NAME,TYPE,SIZE,MODEL,SERIAL,FSTYPE,MOUNTPOINT -e 7,11)
 
 if [[ ${#disk_ids[@]} -eq 0 ]]; then
-    echo "Error: No candidate drives found in /dev/disk/by-id/." >&2
+    echo "Error: No candidate drives found." >&2
     exit 1
 fi
 
@@ -111,8 +152,7 @@ PS3="Select drive number: "
 select CHOICE in "${display_labels[@]}"; do
     if [[ -n "${CHOICE:-}" ]]; then
         index=$(( REPLY - 1 ))
-        NEW_DEV_NAME="${disk_ids[$index]}"
-        NEW_DEV="/dev/disk/by-id/$NEW_DEV_NAME"
+        NEW_DEV="${disk_ids[$index]}"
         SELECTED_INFO="${display_labels[$index]}"
         break
     else
@@ -129,7 +169,7 @@ echo "  New Drive ID:    $NEW_DEV"
 echo "  New Drive Info:  $SELECTED_INFO"
 echo "--------------------------------------------------------------------------------"
 
-if echo "$SELECTED_INFO" | grep -q "\[IN POOL:"; then
+if [[ "$SELECTED_INFO" == *"[IN POOL:"* ]]; then
     echo "WARNING: The selected drive appears to be actively in use by a ZFS pool!"
 fi
 
